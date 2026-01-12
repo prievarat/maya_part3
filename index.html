@@ -8,608 +8,172 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         :root {
-            --primary-300: #F9C97A;
-            --primary-500: #F4A329;
-            --primary-700: #B45309;
-            --secondary-300: #7EDAD6;
-            --secondary-500: #2BB6B4;
-            --secondary-700: #0F766E;
-            --bg: #FFF7F2;
-            --surface: #FFFFFF;
-            --text: #1F2937;
-            --text-muted: #6B7280;
-            --error: #D92D20;
-            --success: #2F9E44;
-            --border: #E6E9EF;
+            --primary-300: #F9C97A; --primary-500: #F4A329; --primary-700: #B45309;
+            --secondary-300: #7EDAD6; --secondary-500: #2BB6B4; --secondary-700: #0F766E;
+            --bg: #FFF7F2; --surface: #FFFFFF; --text: #1F2937; --text-muted: #6B7280;
+            --error: #D92D20; --success: #2F9E44; --border: #E6E9EF;
         }
-
         * { box-sizing: border-box; }
+        body { margin: 0; background-color: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+        
+        /* Login Screen */
+        #login-screen { position: fixed; inset: 0; background: var(--bg); z-index: 200; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .login-box { text-align: center; background: white; padding: 40px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .pass-input { border: none; border-bottom: 2px solid var(--primary-500); color: var(--primary-700); font-family: 'JetBrains Mono'; font-size: 32px; text-align: center; outline: none; letter-spacing: 5px; text-transform: uppercase; width: 300px; }
 
-        body {
-            margin: 0; padding: 0;
-            background-color: var(--bg);
-            background-image: 
-                radial-gradient(var(--primary-300) 0.5px, transparent 0.5px),
-                radial-gradient(var(--primary-300) 0.5px, var(--bg) 0.5px);
-            background-size: 24px 24px;
-            color: var(--text);
-            font-family: 'Inter', sans-serif;
-            height: 100vh;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
+        #intro-overlay, #game-over-overlay { position: fixed; inset: 0; background: rgba(255, 247, 242, 0.98); z-index: 100; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 40px; text-align: center; }
+        .mission-card { background: white; border: 2px solid var(--primary-500); padding: 40px; max-width: 600px; border-radius: 12px; }
+        .btn-main { margin-top: 20px; padding: 12px 30px; background: var(--secondary-500); color: white; border: none; border-radius: 99px; font-family: 'JetBrains Mono'; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-block; }
 
-        /* --- 1. LOGIN SCREEN --- */
-        #login-screen {
-            position: fixed; inset: 0;
-            background: rgba(255, 247, 242, 0.98);
-            z-index: 200;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            font-family: 'JetBrains Mono';
-        }
-
-        .login-box {
-            text-align: center;
-            animation: fadeIn 1s ease;
-            background: white;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            border: 1px solid var(--border);
-        }
-
-        .pass-input {
-            background: transparent;
-            border: none;
-            border-bottom: 2px solid var(--primary-500);
-            color: var(--primary-700);
-            font-family: 'JetBrains Mono';
-            font-size: 32px;
-            text-align: center;
-            outline: none;
-            letter-spacing: 5px;
-            text-transform: uppercase;
-            margin-top: 20px;
-            width: 300px;
-            transition: all 0.3s;
-        }
-        .pass-input:focus { border-color: var(--secondary-500); }
-
-        /* --- 2. INTRO OVERLAY --- */
-        #intro-overlay, #game-over-overlay {
-            position: fixed; inset: 0;
-            background: rgba(255, 247, 242, 0.98);
-            z-index: 100;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 40px;
-            text-align: center;
-        }
-
-        .mission-card {
-            background: white;
-            border: 2px solid var(--primary-500);
-            padding: 40px;
-            max-width: 600px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(244, 163, 41, 0.2);
-        }
-
-        .btn-main {
-            margin-top: 20px;
-            padding: 12px 30px;
-            background: var(--secondary-500);
-            color: white;
-            border: none;
-            border-radius: 99px;
-            font-family: 'JetBrains Mono';
-            font-weight: bold;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 4px 10px rgba(43, 182, 180, 0.3);
-            text-decoration: none;
-            display: inline-block;
-        }
-        .btn-main:hover { transform: translateY(-2px); background: var(--secondary-700); }
-
-        /* --- 3. GAME INTERFACE --- */
-        #game-ui {
-            display: none;
-            flex: 1;
-            grid-template-columns: 1fr 1fr;
-            height: 100%;
-            max-width: 1400px;
-            margin: 0 auto;
-            width: 100%;
-        }
-
-        .header {
-            position: absolute; top: 0; left: 0; right: 0;
-            padding: 15px 30px;
-            background: white;
-            border-bottom: 1px solid var(--border);
-            display: flex; justify-content: space-between;
-            align-items: center;
-            font-family: 'JetBrains Mono';
-            z-index: 10;
-        }
-
-        #timer-display {
-            font-size: 20px;
-            font-weight: bold;
-            color: var(--text);
-            padding: 5px 15px;
-            border: 2px solid var(--border);
-            border-radius: 6px;
-            background: #FAFAFA;
-        }
-        #timer-display.danger {
-            color: var(--error);
-            border-color: var(--error);
-            animation: pulse 1s infinite;
-        }
-
-        /* LEFT: PACKETS */
-        .pool-zone {
-            padding: 80px 40px 40px 40px;
-            border-right: 1px solid var(--border);
-            overflow-y: auto;
-            background: rgba(255,255,255,0.5);
-        }
-
-        .packet {
-            background: white;
-            border: 1px solid var(--border);
-            border-left: 4px solid var(--text-muted);
-            padding: 15px;
-            margin-bottom: 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            font-size: 14px;
-            line-height: 1.5;
-            transition: all 0.2s;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-        }
+        #game-ui { display: none; flex: 1; grid-template-columns: 1fr 1fr; height: 100%; max-width: 1400px; margin: 0 auto; width: 100%; }
+        .header { position: absolute; top: 0; left: 0; right: 0; padding: 15px 30px; background: white; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; z-index: 10; }
+        #timer-display { font-size: 20px; font-weight: bold; padding: 5px 15px; border: 2px solid var(--border); border-radius: 6px; font-family: 'JetBrains Mono'; }
+        
+        .pool-zone { padding: 80px 40px 40px 40px; border-right: 1px solid var(--border); overflow-y: auto; background: rgba(255,255,255,0.5); }
+        .packet { background: white; border: 1px solid var(--border); border-left: 4px solid var(--text-muted); padding: 15px; margin-bottom: 12px; border-radius: 6px; cursor: pointer; font-size: 14px; transition: 0.2s; }
         .packet:hover { border-color: var(--secondary-500); transform: translateX(5px); }
         .packet.used { opacity: 0.4; pointer-events: none; background: #F3F4F6; }
 
-        /* RIGHT: TIMELINE */
-        .timeline-zone {
-            padding: 80px 40px 40px 40px;
-            background: white;
-            display: flex; flex-direction: column;
-            overflow-y: auto;
-        }
-
-        .timeline-slot {
-            min-height: 60px;
-            background: #F9FAFB;
-            border: 1px dashed #D1D5DB;
-            margin-bottom: 15px;
-            display: flex; align-items: center;
-            padding: 15px 15px 15px 30px;
-            border-radius: 6px;
-            font-family: 'Inter', sans-serif;
-            font-size: 14px;
-            color: var(--text-muted);
-            position: relative;
-            transition: all 0.3s;
-        }
-
-        .slot-time {
-            position: absolute; left: -25px;
-            font-family: 'JetBrains Mono';
-            font-size: 11px; color: var(--text-muted);
-            font-weight: bold;
-            width: 40px;
-        }
-
-        .timeline-slot.filled {
-            background: #F0FDFA;
-            border: 1px solid var(--secondary-500);
-            color: var(--text);
-        }
-
-        /* Highlight Logic for Success */
-        .highlight-letter {
-            background-color: #FFFF00; /* Bright Yellow */
-            color: black;
-            font-weight: bold;
-            padding: 0 2px;
-            border-radius: 2px;
-            box-shadow: 0 0 5px rgba(255, 255, 0, 0.5);
-        }
-
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
-        @keyframes shake {
-            0% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            50% { transform: translateX(5px); }
-            75% { transform: translateX(-5px); }
-            100% { transform: translateX(0); }
-        }
-
-        .shake-anim { animation: shake 0.4s ease-in-out; }
-        .penalty-flash { color: var(--error); }
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        /* PUZZLE & SUCCESS AREA */
-        #puzzle-area {
-            display: none; /* Hidden until sequence is correct */
-            margin-top: 30px;
-            border-top: 2px dashed var(--border);
-            padding-top: 30px;
-            text-align: center;
-            animation: fadeIn 1s;
-        }
-
-        .puzzle-input {
-            font-family: 'JetBrains Mono';
-            font-size: 24px;
-            text-transform: uppercase;
-            letter-spacing: 10px;
-            padding: 10px;
-            text-align: center;
-            border: 2px solid var(--primary-500);
-            border-radius: 8px;
-            width: 250px;
-            margin: 15px 0;
-            outline: none;
-        }
-        .puzzle-input:focus { border-color: var(--secondary-500); box-shadow: 0 0 0 4px rgba(43, 182, 180, 0.1); }
-
-        #success-msg {
-            margin-top: 20px;
-            border: 2px solid var(--success);
-            background: #F0FDF4;
-            color: var(--success);
-            padding: 20px;
-            text-align: center;
-            border-radius: 8px;
-            font-family: 'JetBrains Mono';
-            display: none;
-            animation: fadeIn 1s;
-        }
-
-        #check-btn {
-            margin-top: auto;
-            width: 100%;
-            padding: 15px;
-            border-radius: 6px;
-            border: none;
-            font-family: 'JetBrains Mono';
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
+        .timeline-zone { padding: 80px 40px 40px 40px; background: white; display: flex; flex-direction: column; overflow-y: auto; }
+        .timeline-slot { min-height: 60px; background: #F9FAFB; border: 1px dashed #D1D5DB; margin-bottom: 15px; display: flex; align-items: center; padding: 15px 15px 15px 30px; border-radius: 6px; position: relative; font-size: 14px; }
+        .slot-time { position: absolute; left: -25px; font-family: 'JetBrains Mono'; font-size: 11px; color: var(--text-muted); font-weight: bold; }
+        .timeline-slot.filled { background: #F0FDFA; border: 1px solid var(--secondary-500); }
         
-        #check-btn:disabled { background: #E5E7EB; color: #9CA3AF; cursor: not-allowed; }
+        .highlight-letter { background-color: #FFFF00; color: black; font-weight: bold; padding: 0 2px; border-radius: 2px; }
+        #penalty-msg { color: var(--error); font-family: 'JetBrains Mono'; font-size: 12px; height: 20px; margin-top: 10px; text-align: center; }
+        
+        #check-btn { width: 100%; padding: 15px; border-radius: 6px; border: none; font-family: 'JetBrains Mono'; font-weight: bold; cursor: pointer; }
+        #check-btn:disabled { background: #E5E7EB; color: #9CA3AF; }
         #check-btn:not(:disabled) { background: var(--secondary-500); color: white; }
-        #check-btn:not(:disabled):hover { background: var(--secondary-700); }
 
-        .reset-btn {
-            background: transparent; border: none; color: var(--text-muted);
-            font-size: 12px; cursor: pointer; text-decoration: underline;
-            margin-top: 10px; align-self: center;
-        }
-
-        #penalty-msg {
-            color: var(--error);
-            font-family: 'JetBrains Mono';
-            font-size: 12px;
-            height: 20px;
-            margin-top: 10px;
-            text-align: center;
-            font-weight: bold;
-        }
-
+        #puzzle-area { display: none; margin-top: 30px; border-top: 2px dashed var(--border); padding-top: 30px; text-align: center; }
+        .puzzle-input { font-family: 'JetBrains Mono'; font-size: 24px; text-transform: uppercase; letter-spacing: 10px; padding: 10px; text-align: center; border: 2px solid var(--primary-500); width: 250px; }
+        #success-msg { margin-top: 20px; border: 2px solid var(--success); background: #F0FDF4; color: var(--success); padding: 20px; border-radius: 8px; display: none; }
     </style>
 </head>
 <body>
-
     <div id="login-screen">
         <div class="login-box">
             <i data-lucide="lock" style="color:var(--primary-500); width:48px; height:48px; margin-bottom:20px;"></i>
-            <h2 style="font-size: 18px; margin-bottom: 5px;">STAGE 3 ACCESS</h2>
-            <p style="color:var(--text-muted); font-size: 13px; margin-bottom: 20px;">ENTER PASSCODE FROM STAGE 2</p>
-            <input type="text" class="pass-input" id="passcode" maxlength="8" placeholder="_ _ _ _ _ _ _ _" autofocus>
+            <h2>STAGE 3 ACCESS</h2>
+            <p>ENTER PASSCODE FROM STAGE 2</p>
+            <input type="text" class="pass-input" id="passcode" maxlength="8" placeholder="_ _ _ _ _ _" autofocus>
         </div>
     </div>
 
     <div id="intro-overlay">
         <div class="mission-card">
-            <div style="color:var(--primary-700); font-family:'JetBrains Mono'; font-weight:bold; margin-bottom:15px; text-transform:uppercase;">
-                <i data-lucide="headphones" style="display:inline; width:18px;"></i> Audio Intercept
-            </div>
-            <p style="line-height: 1.6; color:#4B5563; margin-bottom:25px;">
-                You identified Henderson as the thief. Before you could act, an application on Maya's laptop activated.
-                <br><br>
-                It's a remote recording from her phone.
-            </p>
-            <div style="background:#F9FAFB; padding:20px; border-left:4px solid var(--secondary-500); margin-bottom:30px; border-radius:4px; font-size:14px;">
-                <strong>MISSION:</strong> Reorder the 6 conversation packets to reconstruct the events.
-                <br><strong>WARNING:</strong> You have 8 minutes before the signal is lost. Wrong attempts will reduce signal time by 1 minute.
-            </div>
+            <h3>FINAL INTERCEPT</h3>
+            <p>You are closing in on Henderson. Reorder the final packets to confirm the escape route. Mistakes cost 1 minute.</p>
             <button class="btn-main" onclick="startGame()">START ANALYSIS</button>
         </div>
     </div>
 
     <div id="game-over-overlay">
-        <div class="mission-card" style="border-color: var(--error);">
-            <div style="color:var(--error); font-family:'JetBrains Mono'; font-weight:bold; margin-bottom:15px; text-transform:uppercase; font-size: 24px;">
-                <i data-lucide="signal-zero" style="display:inline; width:24px;"></i> SIGNAL LOST
-            </div>
-            <p style="line-height: 1.6; color:#4B5563; margin-bottom:25px;">
-                You ran out of time. The audio packets have encrypted themselves permanently.
-            </p>
-            <button class="btn-main" style="background: var(--text); " onclick="location.reload()">RESTART SYSTEM</button>
-        </div>
+        <div class="mission-card" style="border-color: var(--error);"><h1 style="color:var(--error)">SIGNAL LOST</h1><button class="btn-main" onclick="location.reload()">RESTART</button></div>
     </div>
 
     <div id="game-ui">
-        <div class="header">
-            <div>
-                <span style="color:var(--primary-700); font-weight:bold;">AUDIO_RECONSTRUCT_V3</span>
-                <span style="color:var(--text-muted); font-size:12px; margin-left: 10px;">SOURCE: REMOTE_MIC</span>
-            </div>
-            <div id="timer-display">08:00</div>
-        </div>
-
-        <div class="pool-zone">
-            <div style="margin-bottom:20px; color:var(--text-muted); font-size:11px; text-transform:uppercase; font-weight:bold; letter-spacing:1px;">Scrambled Audio Packets</div>
-            <div id="packet-container"></div>
-        </div>
-
+        <div class="header"><span>FINAL_AUDIO_TRACE</span><div id="timer-display">10:00</div></div>
+        <div class="pool-zone"><div id="packet-container"></div></div>
         <div class="timeline-zone">
-            <div style="margin-bottom:20px; color:var(--text-muted); font-size:11px; text-transform:uppercase; font-weight:bold; letter-spacing:1px;">Reconstructed Timeline</div>
             <div id="timeline-container"></div>
-
             <div id="penalty-msg"></div>
-
             <button id="check-btn" onclick="checkSolution()" disabled>ANALYZE SEQUENCE</button>
-            <button class="reset-btn" id="reset-btn-el" onclick="resetTimeline()">Reset Timeline</button>
-
-            <div id="puzzle-area">
-                <p style="font-family:'JetBrains Mono'; font-size:14px; color:var(--text-muted);">
-                    SEQUENCE CORRECT. <br> ANALYZING HIGHLIGHTED ANOMALIES...
-                </p>
-                <input type="text" id="final-word" class="puzzle-input" maxlength="6" placeholder="_ _ _ _ _ _" onkeyup="checkFinalPuzzle()">
-                <div style="font-size:12px; color:var(--text-muted);">DESCRAMBLE THE HIGHLIGHTED LETTERS</div>
-            </div>
-
-            <div id="success-msg">
-                <h3 style="margin-top:0;">LOCATION IDENTIFIED</h3>
-                <p>The clues point to the: <strong style="font-size:1.4em; letter-spacing:2px; display:block; margin:10px 0;">BOILER ROOM</strong></p>
-                <a href="stage4.html" class="btn-main">PROCEED TO STAGE 4</a>
-            </div>
+            <div id="puzzle-area"><p>SEQUENCE CORRECT. UNLOCK OVERRIDE:</p><input type="text" id="final-word" class="puzzle-input" maxlength="6" onkeyup="checkFinalPuzzle()"></div>
+            <div id="success-msg"><h3>ACCESS GRANTED: SEGMENT 4 UNLOCKED</h3><button onclick="goToStage4()" class="btn-main">PROCEED TO FINAL STAGE</button></div>
         </div>
     </div>
 
     <script>
-        // --- DATA ---
-        // Braces {} indicate the letters that light up to form BOILER (I, O, L, E, R, B)
-        // 1: I, 2: O, 3: L, 4: E, 5: R, 6: B
+        // Fragmented URL for Segment 4
+        const root = "https://prievarat.github.io/";
+        const folder = "segment4/";
+
         const audioData = [
             { id: 1, text: "[DRIVER]: Shut the door. And take her phone. We can't have her track{i}ng us." },
-            { id: 2, text: "[MAYA]: My phone has a GPS l{o}ck! You can't turn it off without the passcode." },
-            { id: 3, text: "[DRIVER]: It won't matter. We are entering the Construction Zone. The interference will kill the GPS signa{l}." },
+            { id: 2, text: "[MAYA]: My phone has a GPS l{o}ck! You can't turn it off." },
+            { id: 3, text: "[DRIVER]: It won't matter. The interference will kill the GPS signa{l}." },
             { id: 4, text: "[SFX]: *Loud jackhammers and the {e}cho of a tunnel.*" },
             { id: 5, text: "[PASSENGER]: I hate these tunnels. It smells like sulfu{r} down here." },
-            { id: 6, text: "[MAYA]: Sulfur? That means we're under the Chemistry La{b}. You're taking me to the..." }
+            { id: 6, text: "[MAYA]: Sulfur? Under the Chemistry La{b}. You're taking me to the..." }
         ];
 
-        let userSequence = [];
-        let shuffledPackets = [];
-        
-        // Timer Variables
-        let timeLeft = 480; // 8 minutes in seconds
-        let timerInterval;
-        let isGameActive = false;
+        let userSequence = []; let shuffledData = []; let timeLeft = 600; let timerInterval;
 
-        // --- INIT ---
         lucide.createIcons();
-        const passInput = document.getElementById('passcode');
 
-        passInput.addEventListener('input', (e) => {
-            if(e.target.value.toUpperCase() === 'BLACKOUT') {
-                passInput.blur();
-                passInput.style.color = '#2BB6B4';
-                passInput.style.borderColor = '#2BB6B4';
-                setTimeout(() => {
-                    document.getElementById('login-screen').style.display = 'none';
-                    document.getElementById('intro-overlay').style.display = 'flex';
-                }, 800);
+        // FIXED LOGIN CHECK: Now looks for "BOILER" (The answer from Stage 2)
+        document.getElementById('passcode').addEventListener('input', (e) => {
+            if(e.target.value.toUpperCase() === 'BOILER') {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('intro-overlay').style.display = 'flex';
             }
         });
 
         function startGame() {
             document.getElementById('intro-overlay').style.display = 'none';
             document.getElementById('game-ui').style.display = 'grid';
-            initGame();
+            // FISHER-YATES SHUFFLE for true scrambling
+            shuffledData = [...audioData].sort(() => Math.random() - 0.5);
+            timerInterval = setInterval(updateTimer, 1000);
+            renderPool(); renderTimeline();
         }
 
-        function initGame() {
-            shuffledPackets = [...audioData].sort(() => Math.random() - 0.5);
-            renderPool();
-            renderTimeline();
-            startTimer();
-        }
-
-        // --- TIMER LOGIC ---
-        function startTimer() {
-            isGameActive = true;
-            updateTimerDisplay();
-            timerInterval = setInterval(() => {
-                if(timeLeft > 0) {
-                    timeLeft--;
-                    updateTimerDisplay();
-                } else {
-                    gameOver();
-                }
-            }, 1000);
-        }
-
-        function updateTimerDisplay() {
+        function updateTimer() {
+            if(timeLeft <= 0) { clearInterval(timerInterval); document.getElementById('game-over-overlay').style.display = 'flex'; return; }
+            timeLeft--;
             const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
             const s = (timeLeft % 60).toString().padStart(2, '0');
-            const display = document.getElementById('timer-display');
-            display.innerText = `${m}:${s}`;
-            
-            if(timeLeft < 60) {
-                display.classList.add('danger');
-            } else {
-                display.classList.remove('danger');
-            }
-        }
-
-        function applyPenalty() {
-            const penalty = 60; // 1 minute
-            timeLeft = Math.max(0, timeLeft - penalty);
-            updateTimerDisplay();
-            
-            // Visual feedback
-            const timerEl = document.getElementById('timer-display');
-            timerEl.style.backgroundColor = '#FECACA';
-            timerEl.style.borderColor = '#D92D20';
-            setTimeout(() => {
-                timerEl.style.backgroundColor = '#FAFAFA';
-                timerEl.style.borderColor = '#E6E9EF';
-            }, 500);
-        }
-
-        function gameOver() {
-            clearInterval(timerInterval);
-            isGameActive = false;
-            document.getElementById('game-ui').style.opacity = '0.3';
-            document.getElementById('game-over-overlay').style.display = 'flex';
-        }
-
-        // --- RENDER LOGIC ---
-
-        function cleanText(text) {
-            return text.replace(/[{}]/g, '');
-        }
-
-        function highlightText(text) {
-            // Replaces {x} with highlight span
-            return text.replace(/{(\w)}/g, '<span class="highlight-letter">$1</span>');
+            document.getElementById('timer-display').innerText = `${m}:${s}`;
         }
 
         function renderPool() {
-            const container = document.getElementById('packet-container');
-            container.innerHTML = '';
-            
-            shuffledPackets.forEach(pkt => {
-                const isUsed = userSequence.find(u => u.id === pkt.id);
+            const container = document.getElementById('packet-container'); container.innerHTML = '';
+            shuffledData.forEach(pkt => {
+                const used = userSequence.find(u => u.id === pkt.id);
                 const div = document.createElement('div');
-                div.className = `packet ${isUsed ? 'used' : ''}`;
-                div.innerText = cleanText(pkt.text);
-                div.onclick = () => { if(isGameActive) addToTimeline(pkt); };
+                div.className = `packet ${used ? 'used' : ''}`;
+                div.innerText = pkt.text.replace(/[{}]/g, '');
+                div.onclick = () => { if(!used && userSequence.length < 6) { userSequence.push(pkt); renderPool(); renderTimeline(); }};
                 container.appendChild(div);
             });
         }
 
-        function renderTimeline(revealMode = false) {
-            const container = document.getElementById('timeline-container');
-            container.innerHTML = '';
-            
+        function renderTimeline(reveal = false) {
+            const container = document.getElementById('timeline-container'); container.innerHTML = '';
             for(let i=0; i<6; i++) {
                 const item = userSequence[i];
                 const div = document.createElement('div');
                 div.className = `timeline-slot ${item ? 'filled' : ''}`;
-                
-                const timeLabel = document.createElement('span');
-                timeLabel.className = 'slot-time';
-                timeLabel.innerText = `00:${(i*10).toString().padStart(2,'0')}`;
-                div.appendChild(timeLabel);
-
-                if(item) {
-                    if(revealMode) {
-                        div.innerHTML += highlightText(item.text);
-                    } else {
-                        div.innerHTML += cleanText(item.text);
-                    }
-                } else {
-                    div.innerHTML += "<span style='opacity:0.5'>[ Empty Slot ]</span>";
-                }
-                
+                div.innerHTML = `<span class="slot-time">0${i}:00</span>` + (item ? (reveal ? item.text.replace(/{(\w)}/g, '<span class="highlight-letter">$1</span>') : item.text.replace(/[{}]/g, '')) : '[ Empty Slot ]');
                 container.appendChild(div);
             }
-
-            const btn = document.getElementById('check-btn');
-            btn.disabled = userSequence.length !== 6;
+            document.getElementById('check-btn').disabled = userSequence.length !== 6;
         }
-
-        function addToTimeline(pkt) {
-            if(userSequence.length >= 6) return;
-            if(userSequence.find(u => u.id === pkt.id)) return;
-            
-            userSequence.push(pkt);
-            renderPool();
-            renderTimeline();
-        }
-
-        function resetTimeline() {
-            userSequence = [];
-            document.getElementById('penalty-msg').innerText = '';
-            renderPool();
-            renderTimeline();
-        }
-
-        // --- CHECKING LOGIC ---
 
         function checkSolution() {
-            let correct = true;
-            for(let i=0; i<6; i++) {
-                if(userSequence[i].id !== (i+1)) {
-                    correct = false;
-                    break;
-                }
-            }
-
-            if(correct) {
-                // SUCCESS SEQUENCE
-                clearInterval(timerInterval); // Pause timer for puzzle phase
-                renderTimeline(true); // Show highlights
-                
+            if(userSequence.every((val, idx) => val.id === idx + 1)) {
+                renderTimeline(true);
                 document.getElementById('check-btn').style.display = 'none';
-                document.getElementById('reset-btn-el').style.display = 'none';
-                document.getElementById('penalty-msg').style.display = 'none';
                 document.getElementById('puzzle-area').style.display = 'block';
-                document.getElementById('final-word').focus();
-
             } else {
-                // WRONG SEQUENCE
-                applyPenalty();
-                const container = document.getElementById('timeline-container');
-                container.classList.add('shake-anim');
-                
-                const msg = document.getElementById('penalty-msg');
-                msg.innerText = "-1 MINUTE PENALTY APPLIED. SEQUENCE INCORRECT.";
-                
-                setTimeout(() => {
-                    container.classList.remove('shake-anim');
-                }, 400);
+                timeLeft -= 60; // 1-minute penalty
+                document.getElementById('penalty-msg').innerText = "SEQUENCE INCORRECT. -1 MINUTE.";
+                userSequence = []; renderPool(); renderTimeline();
             }
         }
 
         function checkFinalPuzzle() {
-            const input = document.getElementById('final-word');
-            if(input.value.toUpperCase() === 'BOILER') {
-                input.style.borderColor = 'var(--success)';
-                input.style.color = 'var(--success)';
-                input.disabled = true;
+            // NOTE: You can change 'BOILER' here to a new word like 'DANGER' if you update the text highlights
+            if(document.getElementById('final-word').value.toUpperCase() === 'BOILER') {
                 document.getElementById('success-msg').style.display = 'block';
+                clearInterval(timerInterval);
             }
+        }
+
+        function goToStage4() {
+            window.location.assign(root + folder + "?v=" + Date.now());
         }
     </script>
 </body>
