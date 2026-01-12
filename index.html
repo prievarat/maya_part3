@@ -18,7 +18,7 @@
         
         #login-screen { position: fixed; inset: 0; background: var(--bg); z-index: 200; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .login-box { text-align: center; background: white; padding: 40px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-        .pass-input { border: none; border-bottom: 2px solid var(--primary-500); color: var(--primary-700); font-family: 'JetBrains Mono'; font-size: 32px; text-align: center; outline: none; letter-spacing: 5px; text-transform: uppercase; width: 300px; }
+        .pass-input { border: none; border-bottom: 2px solid var(--primary-500); color: var(--primary-700); font-family: 'JetBrains Mono'; font-size: 32px; text-align: center; outline: none; letter-spacing: 5px; text-transform: uppercase; width: 350px; }
 
         #intro-overlay, #game-over-overlay { position: fixed; inset: 0; background: rgba(255, 247, 242, 0.98); z-index: 100; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 40px; text-align: center; }
         .mission-card { background: white; border: 2px solid var(--primary-500); padding: 40px; max-width: 600px; border-radius: 12px; }
@@ -56,7 +56,7 @@
             <i data-lucide="lock" style="color:var(--primary-500); width:48px; height:48px; margin-bottom:20px;"></i>
             <h2>STAGE 3 ACCESS</h2>
             <p>ENTER PASSCODE FROM STAGE 2</p>
-            <input type="text" class="pass-input" id="passcode" maxlength="6" placeholder="_ _ _ _ _ _" autofocus>
+            <input type="text" class="pass-input" id="passcode" maxlength="8" placeholder="_ _ _ _ _ _ _ _" autofocus>
         </div>
     </div>
 
@@ -85,7 +85,6 @@
     </div>
 
     <script>
-        // Fragmented URL for Segment 4
         const _p1 = "https://prievarat.github.io/";
         const _p2 = "segment4/";
 
@@ -101,9 +100,9 @@
         let userSequence = []; let shuffledData = []; let timeLeft = 600; let timerInterval;
         lucide.createIcons();
 
-        // FIXED LOGIN CHECK: Now looks for "BOILER"
+        
         document.getElementById('passcode').addEventListener('input', (e) => {
-            if(e.target.value.toUpperCase() === 'BOILER') {
+            if(e.target.value.toUpperCase() === 'BLACKOUT') {
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('intro-overlay').style.display = 'flex';
             }
@@ -155,14 +154,14 @@
                 document.getElementById('check-btn').style.display = 'none';
                 document.getElementById('puzzle-area').style.display = 'block';
             } else {
-                timeLeft -= 60; // 1-minute penalty
+                timeLeft -= 60;
                 document.getElementById('penalty-msg').innerText = "SEQUENCE INCORRECT. -1 MINUTE.";
                 userSequence = []; renderPool(); renderTimeline();
             }
         }
 
         function checkFinalPuzzle() {
-            // NOTE: Change 'BOILER' here to a different 6-letter word like 'DANGER' for variety
+            
             if(document.getElementById('final-word').value.toUpperCase() === 'BOILER') {
                 document.getElementById('success-msg').style.display = 'block';
                 clearInterval(timerInterval);
